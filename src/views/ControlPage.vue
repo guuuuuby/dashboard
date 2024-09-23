@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { api } from '@/lib/api';
 import type { Treaty } from '@elysiajs/eden';
-import { onMounted } from 'vue';
-import { useTemplateRef } from 'vue';
-import { computed } from 'vue';
+import { computed, onMounted, useTemplateRef } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
@@ -17,18 +15,19 @@ onMounted(() => {
   const ws = api.stream({ sessionId: sessionId.value }).index.subscribe();
   const mediaSource = new MediaSource();
   let buffer: SourceBuffer | null = null;
-  
+
+  if (!video.value) return;
+
+  video.value.src = URL.createObjectURL(mediaSource);
+
   async function onSocketMessage(event: Treaty.OnMessage<unknown>) {
     if (!buffer || buffer?.updating) return;
     buffer.appendBuffer(await (event.data as Blob).arrayBuffer());
   }
-  
+
   mediaSource.onsourceopen = () => {
-    if (!video.value) return;
-    
     buffer = mediaSource.addSourceBuffer('video/webm; codecs=vp9');
-    video.value.src = URL.createObjectURL(mediaSource);
-    
+
     ws.addEventListener('message', onSocketMessage);
   };
 
