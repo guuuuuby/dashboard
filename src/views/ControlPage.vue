@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { api } from '@/lib/api';
-import type { Treaty } from '@elysiajs/eden';
 import { computed, onMounted, useTemplateRef } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -10,9 +8,22 @@ const video = useTemplateRef('stream');
 const sessionId = computed(() =>
   Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
 );
+const liveUrl = computed(() => `/live/${sessionId.value}`);
+
+function base64ToArrayBuffer(base64: string) {
+  const binaryString = window.atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint16Array(len);
+
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
 
 onMounted(() => {
-  const ws = api.stream({ sessionId: sessionId.value }).index.subscribe();
+  const ws = new WebSocket(liveUrl.value);
+  ws.binaryType = 'arraybuffer';
   const mediaSource = new MediaSource();
   let buffer: SourceBuffer | null = null;
 
@@ -20,13 +31,18 @@ onMounted(() => {
 
   video.value.src = URL.createObjectURL(mediaSource);
 
-  async function onSocketMessage(event: Treaty.OnMessage<unknown>) {
+  ws.onopen = () => console.log('socket open');
+
+  async function onSocketMessage(event: MessageEvent<ArrayBuffer>) {
     if (!buffer || buffer?.updating) return;
-    buffer.appendBuffer(await (event.data as Blob).arrayBuffer());
+
+    console.log(event.data);
+    
+    buffer.appendBuffer(event.data);
   }
 
   mediaSource.onsourceopen = () => {
-    buffer = mediaSource.addSourceBuffer('video/webm; codecs=vp9');
+    buffer = mediaSource.addSourceBuffer('video/webm');
 
     ws.addEventListener('message', onSocketMessage);
   };
