@@ -10,17 +10,6 @@ const sessionId = computed(() =>
 );
 const liveUrl = computed(() => `/live/${sessionId.value}`);
 
-function base64ToArrayBuffer(base64: string) {
-  const binaryString = window.atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint16Array(len);
-
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes.buffer;
-}
-
 onMounted(() => {
   const ws = new WebSocket(liveUrl.value);
   ws.binaryType = 'arraybuffer';
