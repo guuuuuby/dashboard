@@ -3,7 +3,7 @@ import { computed, onMounted, useTemplateRef } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
-const video = useTemplateRef('stream');
+const streamContainer = useTemplateRef('stream');
 
 const sessionId = computed(() =>
   Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
@@ -11,39 +11,28 @@ const sessionId = computed(() =>
 const liveUrl = computed(() => `/live/${sessionId.value}`);
 
 onMounted(() => {
+  if (!streamContainer.value) return;
+
   const ws = new WebSocket(liveUrl.value);
   ws.binaryType = 'arraybuffer';
-  const mediaSource = new MediaSource();
-  let buffer: SourceBuffer | null = null;
-
-  if (!video.value) return;
-
-  video.value.src = URL.createObjectURL(mediaSource);
-
-  ws.onopen = () => console.log('socket open');
 
   async function onSocketMessage(event: MessageEvent<ArrayBuffer>) {
-    if (!buffer || buffer?.updating) return;
-
-    console.log(event.data);
-    
-    buffer.appendBuffer(event.data);
+    const blob = new Blob([event.data], { type: 'image/jpeg' });
+    const image = new Image();
+    const url = URL.createObjectURL(blob);
+    image.src = url;
+    image.onload = () => URL.revokeObjectURL(url);
   }
 
-  mediaSource.onsourceopen = () => {
-    buffer = mediaSource.addSourceBuffer('video/webm');
-
-    ws.addEventListener('message', onSocketMessage);
-  };
+  ws.addEventListener('message', onSocketMessage);
 
   return () => {
-    ws.removeEventListener('message', onSocketMessage as any);
+    ws.removeEventListener('message', onSocketMessage);
     ws.close();
-    mediaSource.endOfStream();
   };
 });
 </script>
 
 <template>
-  <video ref="stream" autoplay playsinline class="w-full h-full object-fit" />
+  <img ref="stream" class="w-full h-full object-fit" />
 </template>
