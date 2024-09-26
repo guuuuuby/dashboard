@@ -35,7 +35,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="max-h-full max-w-full">
-    <img ref="stream" class="w-3/4 mx-auto border rounded-lg shadow-2xl" />
-  </div>
+  <img
+    ref="stream"
+    class="m-auto border rounded-lg shadow-2xl object-fit select-none"
+    draggable="false"
+    @click="$event.preventDefault()"
+    @auxclick="$event.preventDefault()"
+    @dblclick="$event.preventDefault()"
+  />
 </template>

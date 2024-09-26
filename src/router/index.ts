@@ -12,7 +12,14 @@ const router = createRouter({
     {
       path: '/:id',
       name: 'dashboard',
-      component: () => import('@/views/ControlPage.vue'),
+      component: () => import('@/views/DashboardLayout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'desktop',
+          component: () => import('@/views/dashboard/DesktopView.vue')
+        }
+      ]
     },
   ],
 });
