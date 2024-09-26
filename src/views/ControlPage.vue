@@ -17,11 +17,12 @@ onMounted(() => {
   ws.binaryType = 'arraybuffer';
 
   async function onSocketMessage(event: MessageEvent<ArrayBuffer>) {
+    if (!streamContainer.value) return;
+
     const blob = new Blob([event.data], { type: 'image/jpeg' });
-    const image = new Image();
     const url = URL.createObjectURL(blob);
-    image.src = url;
-    image.onload = () => URL.revokeObjectURL(url);
+    streamContainer.value.src = url;
+    streamContainer.value.onload = () => URL.revokeObjectURL(url);
   }
 
   ws.addEventListener('message', onSocketMessage);
@@ -34,5 +35,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <img ref="stream" class="w-full h-full object-fit" />
+  <div class="max-h-full max-w-full">
+    <img ref="stream" class="w-3/4 mx-auto border rounded-lg shadow-2xl" />
+  </div>
 </template>
