@@ -10,7 +10,10 @@ const route = useRoute();
 const router = useRouter();
 const { toast } = useToast();
 
-const links = [{ link: '', label: 'Робочий стіл', icon: 'device-desktop' }];
+const links = [
+  { link: '', label: 'Робочий стіл', icon: 'device-desktop' },
+  { link: 'files', label: 'Файли', icon: 'file' },
+];
 
 const sessionId = computed(() =>
   Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
@@ -23,7 +26,7 @@ function onDisconnect() {
     description: 'Клієнт відключився від сервера',
     duration: 5_000,
   });
- 
+
   router.push({ path: '/' });
 }
 
@@ -31,7 +34,7 @@ onMounted(() => {
   const ws = api.join({ sessionId: sessionId.value }).subscribe();
 
   ws.subscribe(({ data }) => {
-    if (data.event === 'disconnect') onDisconnect();
+    if ('event' in data && data.event === 'disconnect') onDisconnect();
   });
 
   ws.addEventListener('close', onDisconnect);
@@ -45,16 +48,20 @@ onMounted(() => {
 
 <template>
   <div class="flex gap-10 h-[100dvh] max-w-full overflow-hidden">
-    <aside class="p-10 border-r">
+    <aside class="p-10 border-r w-fit">
       <h2>Навігація</h2>
-      <Button v-for="{ link, label, icon } in links" as-child variant="ghost" size="sm">
-        <RouterLink :to="`${sessionId}/${link}`">
-          <Icon :icon="`tabler:${icon}`" class="text-xl mr-1" />
-          {{ label }}
-        </RouterLink>
-      </Button>
+      <ul>
+        <li v-for="{ link, label, icon } in links">
+          <Button as-child variant="ghost" size="sm" class="w-full">
+            <RouterLink :to="`/${sessionId}/${link}`">
+              <Icon :icon="`tabler:${icon}`" class="text-xl mr-1" />
+              {{ label }}
+            </RouterLink>
+          </Button>
+        </li>
+      </ul>
     </aside>
-    <main class="max-h-full overflow-y-auto p-10">
+    <main class="max-h-full w-full overflow-y-auto m-10">
       <RouterView />
     </main>
   </div>

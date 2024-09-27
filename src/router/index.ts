@@ -17,9 +17,14 @@ const router = createRouter({
         {
           path: '',
           name: 'desktop',
-          component: () => import('@/views/dashboard/DesktopView.vue')
-        }
-      ]
+          component: () => import('@/views/dashboard/DesktopView.vue'),
+        },
+        {
+          path: 'files',
+          name: 'files',
+          component: () => import('@/views/dashboard/FilesExplorer.vue'),
+        },
+      ],
     },
   ],
 });
