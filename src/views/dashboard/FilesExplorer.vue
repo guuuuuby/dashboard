@@ -19,7 +19,6 @@ import { api } from '@/lib/api';
 import { displayFileType, displaySize } from '@/lib/utils';
 import { Icon } from '@iconify/vue';
 import { useAsyncState } from '@vueuse/core';
-import type { FSObject } from 'guby';
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -28,14 +27,8 @@ const sessionId = computed(() =>
   Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
 );
 
-const fetchFolderChildren = async (url: string) => {
-  await new Promise((r) => setTimeout(r, 1_000));
-  // api.ls.get({ url, sessionId: sessionId.value }).then(({ data }) => data ?? []);
-  return [
-    { type: 'folder', name: 'Folder' },
-    { type: 'file', name: 'guby.js', bytes: 1.4 * 2 ** 20 },
-  ] satisfies FSObject[];
-};
+const fetchFolderChildren = (url: string) =>
+  api.ls.get({ url, sessionId: sessionId.value }).then(({ data }) => data ?? []);
 
 const path = ref(['root']);
 const url = computed(() => path.value.join('/'));
