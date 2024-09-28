@@ -49,13 +49,15 @@ onMounted(() => {
 <template>
   <div class="flex gap-10 h-[100dvh] max-w-full overflow-hidden">
     <aside class="p-10 border-r w-fit">
-      <h2>Навігація</h2>
+      <h2 class="text-2xl font-bold">Навігація</h2>
       <ul>
         <li v-for="{ link, label, icon } in links">
-          <Button as-child variant="ghost" size="sm" class="w-full">
-            <RouterLink :to="`/${sessionId}/${link}`">
-              <Icon :icon="`tabler:${icon}`" class="text-xl mr-1" />
-              {{ label }}
+          <Button as-child variant="ghost" size="sm">
+            <RouterLink :to="`/${sessionId}/${link}`" class="w-full">
+              <span class="inline-flex gap-2 items-center justify-start w-full">
+                <Icon :icon="`tabler:${icon}`" class="text-xl inline" />
+                {{ label }}
+              </span>
             </RouterLink>
           </Button>
         </li>
