@@ -28,7 +28,7 @@ const sessionId = computed(() =>
 );
 
 const fetchFolderChildren = (url: string) =>
-  api.ls.get({ url, sessionId: sessionId.value }).then(({ data }) => data ?? []);
+  api.ls.post({ url, sessionId: sessionId.value }).then(({ data }) => data ?? []);
 
 const path = ref(['root']);
 const url = computed(() => path.value.join('/'));
