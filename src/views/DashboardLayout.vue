@@ -48,11 +48,15 @@ onMounted(() => {
 
 <template>
   <div class="flex gap-10 h-[100dvh] max-w-full overflow-hidden">
-    <aside class="p-10 border-r w-fit">
-      <h2 class="text-2xl font-bold">Навігація</h2>
+    <aside class="py-10 px-7 border-r w-fit">
+      <h2 class="text-2xl font-bold text-center mb-4">Навігація</h2>
       <ul>
         <li v-for="{ link, label, icon } in links">
-          <Button as-child variant="ghost" size="sm">
+          <Button
+            as-child
+            size="sm"
+            :variant="`/${sessionId}/${link}` === route.path ? 'default' : 'ghost'"
+          >
             <RouterLink :to="`/${sessionId}/${link}`" class="w-full">
               <span class="inline-flex gap-2 items-center justify-start w-full">
                 <Icon :icon="`tabler:${icon}`" class="text-xl inline" />
