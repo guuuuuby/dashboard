@@ -1,10 +1,3 @@
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
 export function displaySize(bytes: number): string {
   const prefixes = ['', 'К', 'М', 'Г', 'Т', 'П'];
   let index = 0;
