@@ -13,6 +13,7 @@ const { toast } = useToast();
 const links = [
   { link: '', label: 'Робочий стіл', icon: 'device-desktop' },
   { link: 'files', label: 'Файли', icon: 'file' },
+  { link: 'terminal', label: 'Термінал', icon: 'terminal' },
 ];
 
 const sessionId = computed(() =>

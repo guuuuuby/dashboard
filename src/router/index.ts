@@ -24,6 +24,11 @@ const router = createRouter({
           name: 'files',
           component: () => import('@/views/dashboard/FilesExplorer.vue'),
         },
+        {
+          path: 'terminal',
+          name: 'terminal',
+          component: () => import('@/views/dashboard/TerminalView.vue'),
+        }
       ],
     },
   ],
