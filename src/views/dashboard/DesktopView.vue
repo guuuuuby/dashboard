@@ -11,12 +11,15 @@ const sessionId = computed(() =>
 );
 const liveUrl = computed(() => `/live/${sessionId.value}`);
 
-function handleClick(event: MouseEvent) {
+function handleClick(event: MouseEvent, aux: boolean) {
   const img = streamContainer.value;
 
   if (!img) return;
 
+  console.log('click');
+
   api.click.post({
+    aux,
     sessionId: sessionId.value,
     point: {
       x: event.offsetX / img.offsetWidth,
@@ -24,6 +27,9 @@ function handleClick(event: MouseEvent) {
     },
   });
 }
+
+const handleBasicClick = (event: MouseEvent) => handleClick(event, false);
+const handleAuxClick = (event: MouseEvent) => handleClick(event, true);
 
 onMounted(() => {
   if (!streamContainer.value) return;
@@ -54,8 +60,8 @@ onMounted(() => {
     ref="stream"
     class="m-auto border rounded-lg shadow-2xl object-fit select-none"
     draggable="false"
-    @click.prevent="handleClick"
-    @auxclick="$event.preventDefault()"
+    @click.left.prevent="handleBasicClick"
+    @click.right.prevent="handleAuxClick"
     @dblclick="$event.preventDefault()"
   />
 </template>
