@@ -58,7 +58,7 @@ onMounted(() => {
 <template>
   <img
     ref="stream"
-    class="m-auto border rounded-lg shadow-2xl object-fit select-none"
+    class="m-auto max-h-full max-w-full border rounded-lg shadow-2xl object-fit select-none"
     draggable="false"
     @click.left.prevent="handleBasicClick"
     @click.right.prevent="handleAuxClick"
