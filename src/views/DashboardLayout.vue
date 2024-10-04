@@ -75,10 +75,6 @@ onMounted(() => {
   const factory = () => createSessionWS(sessionId.value, afterDisconnect);
   const state = ref(factory());
 
-  setTimeout(() => {
-    state.value.ws.close();
-  }, 3_000);
-
   return () => state.value.cleanup();
 });
 </script>
