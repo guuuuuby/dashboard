@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { api } from '@/lib/api';
+import { useSessionId } from '@/lib/composables/useSessionId';
 import { computed, onMounted, useTemplateRef } from 'vue';
-import { useRoute } from 'vue-router';
 
-const route = useRoute();
 const streamContainer = useTemplateRef('stream');
 
-const sessionId = computed(() =>
-  Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
-);
+const sessionId = useSessionId();
 const liveUrl = computed(() => `/live/${sessionId.value}`);
 
 function handleClick(event: MouseEvent, aux: boolean) {

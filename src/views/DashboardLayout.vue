@@ -5,6 +5,8 @@ import { api } from '@/lib/api';
 import { computed, onMounted } from 'vue';
 import { Icon } from '@iconify/vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useSessionId } from '@/lib/composables/useSessionId';
+import { ref } from 'vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -16,9 +18,7 @@ const links = [
   { link: 'terminal', label: 'Термінал', icon: 'terminal' },
 ];
 
-const sessionId = computed(() =>
-  Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
-);
+const sessionId = useSessionId();
 
 function onDisconnect() {
   toast({
@@ -31,19 +31,55 @@ function onDisconnect() {
   router.push({ path: '/' });
 }
 
-onMounted(() => {
-  const ws = api.join({ sessionId: sessionId.value }).subscribe();
+function createSessionWS(sessionId: string, afterDisconnect: (isFromClient: boolean) => void) {
+  const ws = api.join({ sessionId: sessionId }).subscribe();
 
   ws.subscribe(({ data }) => {
-    if ('event' in data && data.event === 'disconnect') onDisconnect();
+    console.info(data);
+
+    if ('event' in data && data.event === 'disconnect') {
+      console.log('disconnect event');
+      ws.removeEventListener('close', onClose);
+      ws.close();
+      afterDisconnect(true);
+    }
   });
 
-  ws.addEventListener('close', onDisconnect);
+  function onClose(event: unknown) {
+    console.log('close', event);
+    afterDisconnect(false);
+  }
 
-  return () => {
-    ws.removeEventListener('close', onDisconnect);
-    ws.close();
+  ws.addEventListener('close', onClose);
+
+  return {
+    ws,
+    cleanup() {
+      ws.removeEventListener('close', onClose);
+      ws.close();
+    },
   };
+}
+
+onMounted(() => {
+  function afterDisconnect(isFromClient: boolean) {
+    state.value.cleanup();
+
+    if (isFromClient) {
+      onDisconnect();
+    } else {
+      state.value = factory();
+    }
+  }
+
+  const factory = () => createSessionWS(sessionId.value, afterDisconnect);
+  const state = ref(factory());
+
+  setTimeout(() => {
+    state.value.ws.close();
+  }, 3_000);
+
+  return () => state.value.cleanup();
 });
 </script>
 

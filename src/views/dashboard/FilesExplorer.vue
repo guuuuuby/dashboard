@@ -16,16 +16,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { api } from '@/lib/api';
+import { useSessionId } from '@/lib/composables/useSessionId';
 import { displayFileType, displaySize } from '@/lib/utils';
 import { Icon } from '@iconify/vue';
 import { useAsyncState } from '@vueuse/core';
 import { computed, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
 
-const route = useRoute();
-const sessionId = computed(() =>
-  Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
-);
+const sessionId = useSessionId();
 
 const fetchFolderChildren = (url: string) =>
   api.ls.post({ url, sessionId: sessionId.value }).then(({ data }) => data ?? []);
