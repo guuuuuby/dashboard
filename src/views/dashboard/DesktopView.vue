@@ -25,6 +25,23 @@ function handleClick(event: MouseEvent, aux: boolean) {
   });
 }
 
+function handleKeyboardEvent(event: KeyboardEvent) {
+  api.keypress.post({
+    sessionId: sessionId.value,
+    event: {
+      action: event.type === 'keyup' ? 'up' : 'down',
+      key: event.key,
+      keyCode: event.code,
+      modifiers: [
+        event.metaKey && 'meta',
+        event.ctrlKey && 'control',
+        event.shiftKey && 'shift',
+        event.altKey && 'alt',
+      ].filter(Boolean) as any,
+    },
+  });
+}
+
 const handleBasicClick = (event: MouseEvent) => handleClick(event, false);
 const handleAuxClick = (event: MouseEvent) => handleClick(event, true);
 
@@ -45,9 +62,14 @@ onMounted(() => {
 
   ws.addEventListener('message', onSocketMessage);
 
+  window.addEventListener('keydown', handleKeyboardEvent);
+  window.addEventListener('keyup', handleKeyboardEvent);
+
   return () => {
     ws.removeEventListener('message', onSocketMessage);
     ws.close();
+    window.removeEventListener('keydown', handleKeyboardEvent);
+    window.removeEventListener('keyup', handleKeyboardEvent);
   };
 });
 </script>
