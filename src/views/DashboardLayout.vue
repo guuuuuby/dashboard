@@ -7,6 +7,8 @@ import { Icon } from '@iconify/vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useSessionId } from '@/lib/composables/useSessionId';
 import { ref } from 'vue';
+import DownloadOptionPicker from '@/components/DownloadOptionPicker.vue';
+import { Separator } from '@/components/ui/separator';
 
 const route = useRoute();
 const router = useRouter();
@@ -81,9 +83,9 @@ onMounted(() => {
 
 <template>
   <div class="flex gap-10 h-[100dvh] max-w-full overflow-hidden">
-    <aside class="py-10 px-7 border-r w-fit">
+    <aside class="py-10 px-7 border-r w-fit h-full">
       <h2 class="text-2xl font-bold text-center mb-4">Навігація</h2>
-      <ul>
+      <ul class="flex flex-col max-h-full">
         <li v-for="{ link, label, icon } in links">
           <Button
             as-child
@@ -97,6 +99,11 @@ onMounted(() => {
               </span>
             </RouterLink>
           </Button>
+        </li>
+        <div class="flex-1"></div>
+        <Separator class="my-2" />
+        <li class="w-full">
+          <DownloadOptionPicker label="Клієнт" w-full />
         </li>
       </ul>
     </aside>

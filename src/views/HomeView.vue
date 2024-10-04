@@ -1,19 +1,10 @@
 <script setup lang="ts">
+import DownloadOptionPicker from '@/components/DownloadOptionPicker.vue';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
-import { Icon } from '@iconify/vue';
+import { Separator } from '@/components/ui/separator';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { downloadOptions } from '@/lib/downloadOptions';
 
 const id = ref('');
 const router = useRouter();
@@ -26,23 +17,6 @@ const router = useRouter();
       <Button>Перейти</Button>
     </form>
     <Separator label="або" />
-    <DropdownMenu>
-      <DropdownMenuTrigger as-child>
-        <Button class="gap-1" variant="secondary">
-          <Icon icon="tabler:download" class="text-xl" />
-          Завантажити клієнт
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuLabel>Опції завантаження</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem v-for="{ icon, label, link } in downloadOptions" class="gap-1" as-child>
-          <a :href="link" target="_blank">
-            <Icon :icon class="text-xl" />
-            {{ label }}
-          </a>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <DownloadOptionPicker />
   </main>
 </template>
