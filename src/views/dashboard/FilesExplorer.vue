@@ -43,28 +43,36 @@ const { state, isLoading, execute } = useAsyncState(() => fetchFolderChildren(ur
 
 watch(url, () => execute());
 
+const locked = ref(new Set<string>());
+
 async function deleteFSObject(index: number) {
   const object = state.value[index];
   const fullPath = `${url.value}/${object.name}`;
+  locked.value = locked.value.add(fullPath);
 
-  const { data: success, error } = await api.rm.delete({
-    sessionId: sessionId.value,
-    url: fullPath,
-  });
-
-  if (error) {
-    const kind = object.type === 'file' ? 'файл' : 'теку';
-
-    toast({
-      variant: 'destructive',
-      title: 'Помилка',
-      description: `Не вдалось видалити ${kind} "${object.name}". ${error.value}.`,
-      duration: 4_000,
+  try {
+    const { data: success, error } = await api.rm.delete({
+      sessionId: sessionId.value,
+      url: fullPath,
     });
-  }
 
-  if (success) {
-    state.value = state.value.splice(index, 1);
+    if (error) {
+      const kind = object.type === 'file' ? 'файл' : 'теку';
+
+      toast({
+        variant: 'destructive',
+        title: 'Помилка',
+        description: `Не вдалось видалити ${kind} "${object.name}". ${error.value}.`,
+        duration: 4_000,
+      });
+    }
+
+    if (success) {
+      state.value = state.value.splice(index, 1);
+    }
+  } finally {
+    locked.value.delete(fullPath);
+    locked.value = locked.value;
   }
 }
 </script>
@@ -111,10 +119,17 @@ async function deleteFSObject(index: number) {
     <TableBody>
       <ContextMenu v-for="(object, index) in state" :key="`${url}/${object.name}`">
         <ContextMenuTrigger as-child>
-          <TableRow class="w-fit rounded-lg">
+          <TableRow class="w-fit rounded-lg" :class="{ 'pointer-events-none': locked.has(`${url}/${object.name}`) }">
             <template v-if="object.type === 'file'">
               <TableCell class="w-fit">
-                <Icon icon="tabler:file" class="inline font-bold text-xl" />
+                <Icon
+                  class="inline font-bold text-xl"
+                  :icon="
+                    locked.has(`${url}/${object.name}`)
+                      ? 'eos-icons:three-dots-loading'
+                      : 'tabler:file'
+                  "
+                />
                 {{ object.name }}
               </TableCell>
               <TableCell>{{ displaySize(object.bytes) }}</TableCell>
@@ -122,7 +137,14 @@ async function deleteFSObject(index: number) {
             </template>
             <template v-else-if="object.type === 'folder'">
               <TableCell class="min-w-fit">
-                <Icon icon="tabler:folder" class="inline font-bold text-xl" />
+                <Icon
+                  class="inline font-bold text-xl"
+                  :icon="
+                    locked.has(`${url}/${object.name}`)
+                      ? 'eos-icons:three-dots-loading'
+                      : 'tabler:folder'
+                  "
+                />
                 <Button variant="link" size="xs" @click="path.push(object.name)">
                   {{ object.name }}
                 </Button>
