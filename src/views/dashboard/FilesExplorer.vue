@@ -7,6 +7,14 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu';
+import {
   Table,
   TableBody,
   TableCaption,
@@ -75,26 +83,45 @@ watch(url, () => execute());
       </TableRow>
     </TableHeader>
     <TableBody>
-      <TableRow v-for="object in state" :key="`${url}/${object.name}`" class="w-fit rounded-lg">
-        <template v-if="object.type === 'file'">
-          <TableCell class="w-fit">
-            <Icon icon="tabler:file" class="inline font-bold text-xl" />
-            {{ object.name }}
-          </TableCell>
-          <TableCell>{{ displaySize(object.bytes) }}</TableCell>
-          <TableCell>{{ displayFileType(object.name) }}</TableCell>
-        </template>
-        <template v-else-if="object.type === 'folder'">
-          <TableCell class="min-w-fit">
-            <Icon icon="tabler:folder" class="inline font-bold text-xl" />
-            <Button variant="link" size="xs" @click="path.push(object.name)">
-              {{ object.name }}
-            </Button>
-          </TableCell>
-          <TableCell>--</TableCell>
-          <TableCell>Тека</TableCell>
-        </template>
-      </TableRow>
+      <ContextMenu v-for="object in state" :key="`${url}/${object.name}`">
+        <ContextMenuTrigger as-child>
+          <TableRow class="w-fit rounded-lg">
+            <template v-if="object.type === 'file'">
+              <TableCell class="w-fit">
+                <Icon icon="tabler:file" class="inline font-bold text-xl" />
+                {{ object.name }}
+              </TableCell>
+              <TableCell>{{ displaySize(object.bytes) }}</TableCell>
+              <TableCell>{{ displayFileType(object.name) }}</TableCell>
+            </template>
+            <template v-else-if="object.type === 'folder'">
+              <TableCell class="min-w-fit">
+                <Icon icon="tabler:folder" class="inline font-bold text-xl" />
+                <Button variant="link" size="xs" @click="path.push(object.name)">
+                  {{ object.name }}
+                </Button>
+              </TableCell>
+              <TableCell>--</TableCell>
+              <TableCell>Тека</TableCell>
+            </template>
+          </TableRow>
+        </ContextMenuTrigger>
+        <ContextMenuContent class="[&>*]:gap-1 bg-background/70 backdrop-blur-sm">
+          <ContextMenuItem>
+            <Icon icon="tabler:download" />
+            Завантажити
+          </ContextMenuItem>
+          <ContextMenuItem>
+            <Icon icon="tabler:edit" />
+            Перейменувати
+          </ContextMenuItem>
+          <ContextMenuSeparator />
+          <ContextMenuItem class="text-destructive">
+            <Icon icon="tabler:trash" />
+            Видалити
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
     </TableBody>
   </Table>
 </template>
