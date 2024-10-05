@@ -68,7 +68,8 @@ async function deleteFSObject(index: number) {
     }
 
     if (success) {
-      state.value = state.value.splice(index, 1);
+      state.value.splice(index, 1);
+      state.value = state.value;
     }
   } finally {
     locked.value.delete(fullPath);
@@ -119,40 +120,52 @@ async function deleteFSObject(index: number) {
     <TableBody>
       <ContextMenu v-for="(object, index) in state" :key="`${url}/${object.name}`">
         <ContextMenuTrigger as-child>
-          <TableRow class="w-fit rounded-lg" :class="{ 'pointer-events-none': locked.has(`${url}/${object.name}`) }">
-            <template v-if="object.type === 'file'">
-              <TableCell class="w-fit">
-                <Icon
-                  class="inline font-bold text-xl"
-                  :icon="
-                    locked.has(`${url}/${object.name}`)
-                      ? 'eos-icons:three-dots-loading'
-                      : 'tabler:file'
-                  "
-                />
-                {{ object.name }}
-              </TableCell>
-              <TableCell>{{ displaySize(object.bytes) }}</TableCell>
-              <TableCell>{{ displayFileType(object.name) }}</TableCell>
-            </template>
-            <template v-else-if="object.type === 'folder'">
-              <TableCell class="min-w-fit">
-                <Icon
-                  class="inline font-bold text-xl"
-                  :icon="
-                    locked.has(`${url}/${object.name}`)
-                      ? 'eos-icons:three-dots-loading'
-                      : 'tabler:folder'
-                  "
-                />
-                <Button variant="link" size="xs" @click="path.push(object.name)">
+          <Transition
+            enter-from-class="opacity-0"
+            enter-active-class="transition-opacity duration-1000"
+            enter-to-class="opacity-100"
+            leave-from-class="opacity-100"
+            leave-active-class="transition-opacity duration-1000"
+            leave-to-class="opacity-0"
+          >
+            <TableRow
+              class="w-fit rounded-lg"
+              :class="{ 'pointer-events-none': locked.has(`${url}/${object.name}`) }"
+            >
+              <template v-if="object.type === 'file'">
+                <TableCell class="w-fit">
+                  <Icon
+                    class="inline font-bold text-xl"
+                    :icon="
+                      locked.has(`${url}/${object.name}`)
+                        ? 'eos-icons:three-dots-loading'
+                        : 'tabler:file'
+                    "
+                  />
                   {{ object.name }}
-                </Button>
-              </TableCell>
-              <TableCell>--</TableCell>
-              <TableCell>Тека</TableCell>
-            </template>
-          </TableRow>
+                </TableCell>
+                <TableCell>{{ displaySize(object.bytes) }}</TableCell>
+                <TableCell>{{ displayFileType(object.name) }}</TableCell>
+              </template>
+              <template v-else-if="object.type === 'folder'">
+                <TableCell class="min-w-fit">
+                  <Icon
+                    class="inline font-bold text-xl"
+                    :icon="
+                      locked.has(`${url}/${object.name}`)
+                        ? 'eos-icons:three-dots-loading'
+                        : 'tabler:folder'
+                    "
+                  />
+                  <Button variant="link" size="xs" @click="path.push(object.name)">
+                    {{ object.name }}
+                  </Button>
+                </TableCell>
+                <TableCell>--</TableCell>
+                <TableCell>Тека</TableCell>
+              </template>
+            </TableRow>
+          </Transition>
         </ContextMenuTrigger>
         <ContextMenuContent class="[&>*]:gap-1 bg-background/70 backdrop-blur-sm">
           <ContextMenuItem>
