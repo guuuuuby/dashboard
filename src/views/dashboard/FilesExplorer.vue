@@ -1,16 +1,5 @@
 <script setup lang="ts">
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
@@ -33,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useToast } from '@/components/ui/toast';
 import { api } from '@/lib/api';
 import { useSessionId } from '@/lib/composables/useSessionId';
 import { displayFileType, displaySize } from '@/lib/utils';
@@ -41,32 +31,40 @@ import { useAsyncState } from '@vueuse/core';
 import { computed, ref, watch } from 'vue';
 
 const sessionId = useSessionId();
+const { toast } = useToast();
 
 const fetchFolderChildren = (url: string) =>
   api.ls.post({ url, sessionId: sessionId.value }).then(({ data }) => data ?? []);
 
 const path = ref(['root']);
 const url = computed(() => path.value.join('/'));
-const deleting = ref(new Set<string>());
 
 const { state, isLoading, execute } = useAsyncState(() => fetchFolderChildren(url.value), []);
 
 watch(url, () => execute());
 
-async function deleteFSObject(url: string) {
-  deleting.value = deleting.value.add(url);
-  console.log(deleting.value);
+async function deleteFSObject(index: number) {
+  const object = state.value[index];
+  const fullPath = `${url.value}/${object.name}`;
 
-  try {
-    const { data: success } = await api.rm.delete({
-      url,
-      sessionId: sessionId.value,
+  const { data: success, error } = await api.rm.delete({
+    sessionId: sessionId.value,
+    url: fullPath,
+  });
+
+  if (error) {
+    const kind = object.type === 'file' ? 'файл' : 'теку';
+
+    toast({
+      variant: 'destructive',
+      title: 'Помилка',
+      description: `Не вдалось видалити ${kind} "${object.name}". ${error.value}.`,
+      duration: 4_000,
     });
+  }
 
-    if (success) execute(500);
-  } finally {
-    deleting.value.delete(url);
-    deleting.value = deleting.value;
+  if (success) {
+    state.value = state.value.splice(index, 1);
   }
 }
 </script>
@@ -111,7 +109,7 @@ async function deleteFSObject(url: string) {
       </TableRow>
     </TableHeader>
     <TableBody>
-      <ContextMenu v-for="object in state" :key="`${url}/${object.name}`">
+      <ContextMenu v-for="(object, index) in state" :key="`${url}/${object.name}`">
         <ContextMenuTrigger as-child>
           <TableRow class="w-fit rounded-lg">
             <template v-if="object.type === 'file'">
@@ -144,42 +142,10 @@ async function deleteFSObject(url: string) {
             Перейменувати
           </ContextMenuItem>
           <ContextMenuSeparator />
-          <AlertDialog>
-            <AlertDialogTrigger as-child>
-              <ContextMenuItem @select="$event.preventDefault()" class="text-destructive">
-                <Icon icon="tabler:trash" />
-                Видалити
-              </ContextMenuItem>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Ви впевнені?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Ви впевнені, що хочете видалити "{{ object.name }}"? Цю дію неможливо відмінити.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Закрити</AlertDialogCancel>
-                <AlertDialogTrigger as-child>
-                  <Button
-                    variant="destructive"
-                    :disabled="deleting.has(url + '/' + object.name)"
-                    @click="deleteFSObject(url + '/' + object.name)"
-                  >
-                    <Icon
-                      class="text-xl"
-                      :icon="
-                        deleting.has(url + '/' + object.name)
-                          ? 'eos-icons:three-dots-loading'
-                          : 'tabler:trash'
-                      "
-                    />
-                    Видалити
-                  </Button>
-                </AlertDialogTrigger>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <ContextMenuItem @select="deleteFSObject(index)" class="text-destructive">
+            <Icon icon="tabler:trash" />
+            Видалити
+          </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
     </TableBody>
