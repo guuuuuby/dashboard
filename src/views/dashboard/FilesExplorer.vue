@@ -1,5 +1,16 @@
 <script setup lang="ts">
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
@@ -36,10 +47,28 @@ const fetchFolderChildren = (url: string) =>
 
 const path = ref(['root']);
 const url = computed(() => path.value.join('/'));
+const deleting = ref(new Set<string>());
 
 const { state, isLoading, execute } = useAsyncState(() => fetchFolderChildren(url.value), []);
 
 watch(url, () => execute());
+
+async function deleteFSObject(url: string) {
+  deleting.value = deleting.value.add(url);
+  console.log(deleting.value);
+
+  try {
+    const { data: success } = await api.rm.delete({
+      url,
+      sessionId: sessionId.value,
+    });
+
+    if (success) execute(500);
+  } finally {
+    deleting.value.delete(url);
+    deleting.value = deleting.value;
+  }
+}
 </script>
 <template class="max-h-full">
   <h2 class="text-2xl font-bold">Файли</h2>
@@ -115,10 +144,42 @@ watch(url, () => execute());
             Перейменувати
           </ContextMenuItem>
           <ContextMenuSeparator />
-          <ContextMenuItem class="text-destructive">
-            <Icon icon="tabler:trash" />
-            Видалити
-          </ContextMenuItem>
+          <AlertDialog>
+            <AlertDialogTrigger as-child>
+              <ContextMenuItem @select="$event.preventDefault()" class="text-destructive">
+                <Icon icon="tabler:trash" />
+                Видалити
+              </ContextMenuItem>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Ви впевнені?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Ви впевнені, що хочете видалити "{{ object.name }}"? Цю дію неможливо відмінити.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Закрити</AlertDialogCancel>
+                <AlertDialogTrigger as-child>
+                  <Button
+                    variant="destructive"
+                    :disabled="deleting.has(url + '/' + object.name)"
+                    @click="deleteFSObject(url + '/' + object.name)"
+                  >
+                    <Icon
+                      class="text-xl"
+                      :icon="
+                        deleting.has(url + '/' + object.name)
+                          ? 'eos-icons:three-dots-loading'
+                          : 'tabler:trash'
+                      "
+                    />
+                    Видалити
+                  </Button>
+                </AlertDialogTrigger>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </ContextMenuContent>
       </ContextMenu>
     </TableBody>
