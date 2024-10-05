@@ -67,10 +67,7 @@ async function deleteFSObject(index: number) {
       });
     }
 
-    if (success) {
-      state.value.splice(index, 1);
-      state.value = state.value;
-    }
+    if (success) await execute();
   } finally {
     locked.value.delete(fullPath);
     locked.value = locked.value;
