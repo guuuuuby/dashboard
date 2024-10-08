@@ -20,6 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   success: [];
+  finally: [];
 }>();
 
 const loading = ref(false);
@@ -34,6 +35,7 @@ async function callAction() {
     emit('success');
   } finally {
     loading.value = false;
+    emit('finally');
   }
 }
 
@@ -56,7 +58,7 @@ const icon = computed(() => {
     :disabled="loading"
     @click="callAction"
   >
-    <Icon v-if="icon" :icon />
+    <Icon v-if="icon" :icon class="text-xl" />
     <slot />
   </Primitive>
 </template>

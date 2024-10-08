@@ -30,7 +30,7 @@
     "@vitejs/plugin-vue": "^5.0.5",
     "@vue/tsconfig": "^0.5.1",
     "autoprefixer": "^10.4.20",
-    "guby": "github:guuuuuby/backend#b78011d1b285228c633e64cd7bd328e1a72f611e",
+    "guby": "github:guuuuuby/backend#47c44b859358eeed4c7ca782cbb8190de4f4d4e9",
     "npm-run-all2": "^6.2.0",
     "tailwindcss": "^3.4.12",
     "typescript": "~5.4.0",
