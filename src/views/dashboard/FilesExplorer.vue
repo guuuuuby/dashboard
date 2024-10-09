@@ -40,6 +40,7 @@ import { useSessionId } from '@/lib/composables/useSessionId';
 import { displayFileType, displaySize } from '@/lib/utils';
 import { Icon } from '@iconify/vue';
 import { useAsyncState } from '@vueuse/core';
+import type { FSObject } from 'guby';
 import { computed, ref, watch } from 'vue';
 
 const sessionId = useSessionId();
@@ -129,6 +130,14 @@ async function moveFSObject(index: number, newName: string) {
     locked.value.delete(fullPath);
     locked.value = locked.value;
   }
+}
+
+function downloadFSObject(object: FSObject) {
+  const filename = encodeURIComponent(
+    object.type === 'folder' ? `${object.name}.zip` : object.name
+  );
+  const fullPath = encodeURIComponent(`${url.value}/${object.name}`);
+  return window.open(`/download/${sessionId.value}/${filename}?url=${fullPath}`);
 }
 </script>
 <template class="max-h-full">
@@ -222,7 +231,10 @@ async function moveFSObject(index: number, newName: string) {
           </Transition>
         </ContextMenuTrigger>
         <ContextMenuContent class="[&>*]:gap-1 bg-background/70 backdrop-blur-sm">
-          <ContextMenuItem :disabled="locked.has(`${url}/${object.name}`)">
+          <ContextMenuItem
+            :disabled="locked.has(`${url}/${object.name}`)"
+            @select="downloadFSObject(object)"
+          >
             <Icon icon="tabler:download" />
             Завантажити
           </ContextMenuItem>
