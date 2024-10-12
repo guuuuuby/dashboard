@@ -87,7 +87,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="rounded-xl border overflow-hidden h-full">
+  <section class="rounded-xl border overflow-hidden h-full shadow-2xl">
     <div class="border-b px-2 py-1 flex justify-center items-center">
       <div class="[&>*]:aspect-square [&>*]:h-4 [&>*]:rounded-full flex h-full gap-2">
         <div class="bg-zinc-200 dark:bg-zinc-800"></div>
