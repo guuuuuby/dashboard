@@ -113,7 +113,7 @@ async function moveFSObject(index: number, newName: string) {
     const { data: success, error } = await api.mv.put({
       sessionId: sessionId.value,
       url: fullPath,
-      destinationUrl: `${url.value}/${object.name}`,
+      destinationUrl: `${url.value}/${newName}`,
     });
 
     if (error) {
