@@ -30,6 +30,10 @@ export default defineConfig({
         ws: true,
         rewrite: (path) => path.replace(/^\/live/, ''),
       },
+      "/download": {
+        "target": "http://localhost:8000",
+        secure: false,
+      }
     },
   },
 });
