@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/context-menu';
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -180,7 +179,7 @@ function downloadFSObject(object: FSObject) {
         <TableHead>Тип</TableHead>
       </TableRow>
     </TableHeader>
-    <TableBody>
+    <TableBody class="text-nowrap">
       <ContextMenu v-for="(object, index) in state" :key="`${url}/${object.name}`">
         <ContextMenuTrigger as-child>
           <Transition
@@ -196,7 +195,7 @@ function downloadFSObject(object: FSObject) {
               :class="{ 'pointer-events-none': locked.has(`${url}/${object.name}`) }"
             >
               <template v-if="object.type === 'file'">
-                <TableCell class="w-fit">
+                <TableCell class="w-fit flex gap-1 items-center">
                   <Icon
                     class="inline font-bold text-xl"
                     :icon="
@@ -205,7 +204,7 @@ function downloadFSObject(object: FSObject) {
                         : 'tabler:file'
                     "
                   />
-                  {{ object.name }}
+                  <span>{{ object.name }}</span>
                 </TableCell>
                 <TableCell>{{ displaySize(object.bytes) }}</TableCell>
                 <TableCell>{{ displayFileType(object.name) }}</TableCell>
