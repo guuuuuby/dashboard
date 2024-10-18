@@ -159,7 +159,7 @@ function downloadFSObject(object: FSObject) {
               class="text-2xl"
             />
             <Icon
-              v-else-if="index === 0 && !isLoading"
+              v-else-if="index === 0"
               icon="tabler:home"
               class="text-lg font-thin"
             />
