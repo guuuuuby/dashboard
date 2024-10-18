@@ -203,14 +203,16 @@ function downloadFSObject(object: FSObject) {
               <template v-if="object.type === 'file'">
                 <TableCell class="flex gap-1 items-center">
                   <Icon
-                    class="inline font-bold text-xl"
+                    class="inline font-bold text-xl text-muted-foreground"
                     :icon="
                       locked.has(`${url}/${object.name}`)
                         ? 'eos-icons:three-dots-loading'
-                        : 'tabler:file'
+                        : 'tabler:file-filled'
                     "
                   />
-                  <span>{{ object.name }}</span>
+                  <span :class="{ 'text-muted-foreground': object.name.startsWith('.') }">{{
+                    object.name
+                  }}</span>
                 </TableCell>
                 <TableCell>{{ displaySize(object.bytes) }}</TableCell>
                 <TableCell>{{ displayFileType(object.name) }}</TableCell>
@@ -219,17 +221,26 @@ function downloadFSObject(object: FSObject) {
                 <TableCell class="min-w-fit">
                   <Icon
                     class="inline font-bold text-xl"
+                    :class="
+                      !locked.has(`${url}/${object.name}`) &&
+                      (object.name.startsWith('.') ? 'text-blue-400/70' : 'text-blue-400')
+                    "
                     :icon="
                       locked.has(`${url}/${object.name}`)
                         ? 'eos-icons:three-dots-loading'
-                        : 'tabler:folder'
+                        : 'tabler:folder-filled'
                     "
                   />
-                  <Button variant="link" size="xs" @click="path.push(object.name)">
+                  <Button
+                    variant="link"
+                    size="xs"
+                    :class="object.name.startsWith('.') && 'text-muted-foreground'"
+                    @click="path.push(object.name)"
+                  >
                     {{ object.name }}
                   </Button>
                 </TableCell>
-                <TableCell>--</TableCell>
+                <TableCell class="text-muted-foreground">--</TableCell>
                 <TableCell>Тека</TableCell>
               </template>
             </TableRow>
