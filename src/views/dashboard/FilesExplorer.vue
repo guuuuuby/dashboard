@@ -151,13 +151,19 @@ function downloadFSObject(object: FSObject) {
             :disabled="index + 1 >= path.length"
             :variant="index + 1 >= path.length ? 'secondary' : 'ghost'"
             @click="path.splice(index + 1)"
+            class="gap-1"
           >
             <Icon
               v-if="index + 1 >= path.length && isLoading"
               icon="eos-icons:three-dots-loading"
               class="text-2xl"
             />
-            {{ folder }}
+            <Icon
+              v-else-if="index === 0 && !isLoading"
+              icon="tabler:home"
+              class="text-lg font-thin"
+            />
+            {{ index === 0 ? 'Початкова тека' : folder }}
           </Button>
         </BreadcrumbItem>
         <BreadcrumbSeparator>/</BreadcrumbSeparator>
@@ -195,7 +201,7 @@ function downloadFSObject(object: FSObject) {
               :class="{ 'pointer-events-none': locked.has(`${url}/${object.name}`) }"
             >
               <template v-if="object.type === 'file'">
-                <TableCell class="w-fit flex gap-1 items-center">
+                <TableCell class="flex gap-1 items-center">
                   <Icon
                     class="inline font-bold text-xl"
                     :icon="
