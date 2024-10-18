@@ -15,7 +15,14 @@ const router = createRouter({
       component: () => import('@/views/DashboardLayout.vue'),
       children: [
         {
-          path: '',
+          path: '/:id',
+          name: 'desktop_redirect',
+          redirect(to) {
+            return `/${to.params.id}/desktop`
+          }
+        },
+        {
+          path: 'desktop',
           name: 'desktop',
           component: () => import('@/views/dashboard/DesktopView.vue'),
         },

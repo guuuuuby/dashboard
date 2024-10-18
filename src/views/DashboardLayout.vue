@@ -15,7 +15,7 @@ const router = useRouter();
 const { toast } = useToast();
 
 const links = [
-  { link: '', label: 'Робочий стіл', icon: 'device-desktop' },
+  { link: 'desktop', label: 'Робочий стіл', icon: 'device-desktop' },
   { link: 'files', label: 'Файли', icon: 'file' },
   { link: 'terminal', label: 'Термінал', icon: 'terminal' },
 ];
