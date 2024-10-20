@@ -87,6 +87,8 @@ async function deleteFSObject(index: number) {
   }
 }
 
+const isLocked = (object: FSObject) => locked.value.has(`${url.value}/${object.name}`);
+
 async function moveFSObject(index: number, newName: string) {
   const object = state.value[index];
 
@@ -158,11 +160,7 @@ function downloadFSObject(object: FSObject) {
               icon="eos-icons:three-dots-loading"
               class="text-2xl"
             />
-            <Icon
-              v-else-if="index === 0"
-              icon="tabler:home"
-              class="text-lg font-thin"
-            />
+            <Icon v-else-if="index === 0" icon="tabler:home" class="text-lg font-thin" />
             {{ index === 0 ? 'Початкова тека' : folder }}
           </Button>
         </BreadcrumbItem>
@@ -188,75 +186,52 @@ function downloadFSObject(object: FSObject) {
     <TableBody class="text-nowrap">
       <ContextMenu v-for="(object, index) in state" :key="`${url}/${object.name}`">
         <ContextMenuTrigger as-child>
-          <Transition
-            enter-from-class="opacity-0"
-            enter-active-class="transition-opacity duration-1000"
-            enter-to-class="opacity-100"
-            leave-from-class="opacity-100"
-            leave-active-class="transition-opacity duration-1000"
-            leave-to-class="opacity-0"
-          >
-            <TableRow
-              class="w-fit rounded-lg"
-              :class="{ 'pointer-events-none': locked.has(`${url}/${object.name}`) }"
-            >
-              <template v-if="object.type === 'file'">
-                <TableCell class="flex gap-1 items-center">
-                  <Icon
-                    class="inline font-bold text-xl text-muted-foreground"
-                    :icon="
-                      locked.has(`${url}/${object.name}`)
-                        ? 'eos-icons:three-dots-loading'
-                        : 'tabler:file-filled'
-                    "
-                  />
-                  <span :class="{ 'text-muted-foreground': object.name.startsWith('.') }">{{
-                    object.name
-                  }}</span>
-                </TableCell>
-                <TableCell>{{ displaySize(object.bytes) }}</TableCell>
-                <TableCell>{{ displayFileType(object.name) }}</TableCell>
-              </template>
-              <template v-else-if="object.type === 'folder'">
-                <TableCell class="min-w-fit">
-                  <Icon
-                    class="inline font-bold text-xl"
-                    :class="
-                      !locked.has(`${url}/${object.name}`) &&
-                      (object.name.startsWith('.') ? 'text-blue-400/70' : 'text-blue-400')
-                    "
-                    :icon="
-                      locked.has(`${url}/${object.name}`)
-                        ? 'eos-icons:three-dots-loading'
-                        : 'tabler:folder-filled'
-                    "
-                  />
-                  <Button
-                    variant="link"
-                    size="xs"
-                    :class="object.name.startsWith('.') && 'text-muted-foreground'"
-                    @click="path.push(object.name)"
-                  >
-                    {{ object.name }}
-                  </Button>
-                </TableCell>
-                <TableCell class="text-muted-foreground">--</TableCell>
-                <TableCell>Тека</TableCell>
-              </template>
-            </TableRow>
-          </Transition>
+          <TableRow class="w-fit rounded-lg" :class="{ 'pointer-events-none': isLocked(object) }">
+            <template v-if="object.type === 'file'">
+              <TableCell class="flex gap-1 items-center">
+                <Icon
+                  class="inline font-bold text-xl text-muted-foreground"
+                  :icon="isLocked(object) ? 'eos-icons:three-dots-loading' : 'tabler:file-filled'"
+                />
+                <span :class="{ 'text-muted-foreground': object.name.startsWith('.') }">
+                  {{ object.name }}
+                </span>
+              </TableCell>
+              <TableCell>{{ displaySize(object.bytes) }}</TableCell>
+              <TableCell>{{ displayFileType(object.name) }}</TableCell>
+            </template>
+            <template v-else-if="object.type === 'folder'">
+              <TableCell class="min-w-fit">
+                <Icon
+                  class="inline font-bold text-xl"
+                  :class="
+                    !isLocked(object) &&
+                    (object.name.startsWith('.') ? 'text-blue-400/70' : 'text-blue-400')
+                  "
+                  :icon="isLocked(object) ? 'eos-icons:three-dots-loading' : 'tabler:folder-filled'"
+                />
+                <Button
+                  variant="link"
+                  size="xs"
+                  :class="object.name.startsWith('.') && 'text-muted-foreground'"
+                  @click="path.push(object.name)"
+                >
+                  {{ object.name }}
+                </Button>
+              </TableCell>
+              <TableCell class="text-muted-foreground">--</TableCell>
+              <TableCell>Тека</TableCell>
+            </template>
+          </TableRow>
         </ContextMenuTrigger>
         <ContextMenuContent class="[&>*]:gap-1 bg-background/70 backdrop-blur-sm">
-          <ContextMenuItem
-            :disabled="locked.has(`${url}/${object.name}`)"
-            @select="downloadFSObject(object)"
-          >
+          <ContextMenuItem :disabled="isLocked(object)" @select="downloadFSObject(object)">
             <Icon icon="tabler:download" />
             Завантажити
           </ContextMenuItem>
           <Dialog v-slot="{ close }">
             <ContextMenuItem
-              :disabled="locked.has(`${url}/${object.name}`)"
+              :disabled="isLocked(object)"
               @select="$event.preventDefault()"
               as-child
             >
@@ -295,7 +270,7 @@ function downloadFSObject(object: FSObject) {
           </Dialog>
           <ContextMenuSeparator />
           <ContextMenuItem
-            :disabled="locked.has(`${url}/${object.name}`)"
+            :disabled="isLocked(object)"
             @select="deleteFSObject(index)"
             class="text-destructive"
           >
