@@ -87,15 +87,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="rounded-xl border overflow-hidden h-full shadow-2xl">
+  <section class="rounded-xl border overflow-hidden h-full shadow-2xl flex flex-col">
     <div class="border-b px-2 py-1 flex justify-center items-center">
-      <div class="[&>*]:aspect-square [&>*]:h-4 [&>*]:rounded-full flex h-full gap-2">
+      <div class="[&>*]:aspect-square [&>*]:h-4 [&>*]:rounded-full flex items-center h-full gap-2">
         <div class="bg-zinc-200 dark:bg-zinc-800"></div>
         <div class="bg-zinc-200 dark:bg-zinc-800"></div>
         <div class="bg-zinc-200 dark:bg-zinc-800"></div>
       </div>
       <h2 class="flex-1 text-center">{{ title }}</h2>
     </div>
-    <div ref="terminal" class="p-2 w-full h-full bg-black"></div>
+    <div ref="terminal" class="p-2 mb-4 w-full h-full overflow-h-auto bg-black"></div>
   </section>
 </template>
