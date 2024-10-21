@@ -58,6 +58,17 @@ watch(url, () => execute());
 
 const locked = ref(new Set<string>());
 
+const formatter = new Intl.DateTimeFormat('uk-UA', {
+  year: 'numeric',
+  day: 'numeric',
+  month: 'short',
+  weekday: 'long',
+  hour: 'numeric',
+  minute: 'numeric'
+});
+
+const formatISODate = (isoDate: string) => formatter.format(new Date(isoDate));
+
 async function deleteFSObject(index: number) {
   const object = state.value[index];
   const fullPath = `${url.value}/${object.name}`;
@@ -181,6 +192,7 @@ function downloadFSObject(object: FSObject) {
         <TableHead>Назва</TableHead>
         <TableHead>Розмір</TableHead>
         <TableHead>Тип</TableHead>
+        <TableHead>Додано</TableHead>
       </TableRow>
     </TableHeader>
     <TableBody class="text-nowrap">
@@ -199,6 +211,7 @@ function downloadFSObject(object: FSObject) {
               </TableCell>
               <TableCell>{{ displaySize(object.bytes) }}</TableCell>
               <TableCell>{{ displayFileType(object.name) }}</TableCell>
+              <TableCell>{{ formatISODate(object.createdAt) }}</TableCell>
             </template>
             <template v-else-if="object.type === 'folder'">
               <TableCell class="min-w-fit">
@@ -221,6 +234,7 @@ function downloadFSObject(object: FSObject) {
               </TableCell>
               <TableCell class="text-muted-foreground">--</TableCell>
               <TableCell>Тека</TableCell>
+              <TableCell>{{ formatISODate(object.createdAt) }}</TableCell>
             </template>
           </TableRow>
         </ContextMenuTrigger>
