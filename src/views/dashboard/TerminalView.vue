@@ -27,7 +27,7 @@ const syncTerminalSize = useDebounceFn(
 );
 
 onMounted(() => {
-  const ws = new WebSocket(`/live?sessionId=${sessionId.value}&channel=terminal`);
+  const ws = new WebSocket(`/live/${sessionId.value}?channel=terminal`);
   ws.binaryType = 'arraybuffer';
 
   const container = terminalContainer.value;
