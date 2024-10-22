@@ -34,7 +34,9 @@ onMounted(() => {
   if (!container) return;
 
   const fitAddon = new FitAddon();
-  const terminal = new Terminal();
+  const terminal = new Terminal({
+    fontFamily: '"MesloLGSNerdFontMono", monospace'
+  });
   terminal.open(container);
   terminal.loadAddon(fitAddon);
   fitAddon.fit();
