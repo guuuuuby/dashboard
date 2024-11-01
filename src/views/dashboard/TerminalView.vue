@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { api } from '@/lib/api';
 import { useSessionId } from '@/lib/composables/useSessionId';
-import { Terminal } from '@xterm/xterm';
-import { FitAddon } from '@xterm/addon-fit';
-import '@xterm/xterm/css/xterm.css';
-import { onMounted, useTemplateRef, ref } from 'vue';
+import { onMount } from '@/lib/utils';
 import { useDebounceFn } from '@vueuse/core';
+import { FitAddon } from '@xterm/addon-fit';
+import { Terminal } from '@xterm/xterm';
+import '@xterm/xterm/css/xterm.css';
+import { ref, useTemplateRef } from 'vue';
 
 const sessionId = useSessionId();
 const terminalContainer = useTemplateRef('terminal');
@@ -26,7 +27,7 @@ const syncTerminalSize = useDebounceFn(
   { maxWait: 500 }
 );
 
-onMounted(() => {
+onMount(() => {
   const ws = new WebSocket(`/live/${sessionId.value}?channel=terminal`);
   ws.binaryType = 'arraybuffer';
 
@@ -35,7 +36,7 @@ onMounted(() => {
 
   const fitAddon = new FitAddon();
   const terminal = new Terminal({
-    fontFamily: '"MesloLGSNerdFontMono", monospace'
+    fontFamily: '"MesloLGSNerdFontMono", monospace',
   });
   terminal.open(container);
   terminal.loadAddon(fitAddon);

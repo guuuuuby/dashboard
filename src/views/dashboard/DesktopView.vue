@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { api } from '@/lib/api';
 import { useSessionId } from '@/lib/composables/useSessionId';
-import { computed, onMounted, useTemplateRef } from 'vue';
+import { onMount } from '@/lib/utils';
+import { useEventListener } from '@vueuse/core';
+import { computed, useTemplateRef } from 'vue';
 
 const streamContainer = useTemplateRef('stream');
 
@@ -45,11 +47,13 @@ function handleKeyboardEvent(event: KeyboardEvent) {
 const handleBasicClick = (event: MouseEvent) => handleClick(event, false);
 const handleAuxClick = (event: MouseEvent) => handleClick(event, true);
 
-onMounted(() => {
-  if (!streamContainer.value) return;
+useEventListener('keydown', handleKeyboardEvent);
+useEventListener('keyup', handleKeyboardEvent);
 
+onMount(() => {
   const ws = new WebSocket(liveUrl.value);
   ws.binaryType = 'arraybuffer';
+  ws.addEventListener('message', onSocketMessage);
 
   async function onSocketMessage(event: MessageEvent<ArrayBuffer>) {
     if (!streamContainer.value) return;
@@ -60,16 +64,9 @@ onMounted(() => {
     streamContainer.value.onload = () => URL.revokeObjectURL(url);
   }
 
-  ws.addEventListener('message', onSocketMessage);
-
-  window.addEventListener('keydown', handleKeyboardEvent);
-  window.addEventListener('keyup', handleKeyboardEvent);
-
   return () => {
     ws.removeEventListener('message', onSocketMessage);
     ws.close();
-    window.removeEventListener('keydown', handleKeyboardEvent);
-    window.removeEventListener('keyup', handleKeyboardEvent);
   };
 });
 </script>

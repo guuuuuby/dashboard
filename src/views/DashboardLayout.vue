@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import DownloadOptionPicker from '@/components/DownloadOptionPicker.vue';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/toast';
 import { api } from '@/lib/api';
-import { computed, onMounted } from 'vue';
-import { Icon } from '@iconify/vue';
-import { useRoute, useRouter } from 'vue-router';
 import { useSessionId } from '@/lib/composables/useSessionId';
+import { onMount } from '@/lib/utils';
+import { Icon } from '@iconify/vue';
 import { ref } from 'vue';
-import DownloadOptionPicker from '@/components/DownloadOptionPicker.vue';
-import { Separator } from '@/components/ui/separator';
+import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
@@ -63,7 +63,7 @@ function createSessionWS(sessionId: string, afterDisconnect: (isFromClient: bool
   };
 }
 
-onMounted(() => {
+onMount(() => {
   function afterDisconnect(isFromClient: boolean) {
     state.value.cleanup();
 
